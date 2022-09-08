@@ -411,6 +411,19 @@ public class ESSyncService {
                     } else {
                         // ------关联子表简单字段更新------
                         subTableSimpleFieldOperation(config, dml, data, null, tableItem);
+
+
+                        /*if (logger.isTraceEnabled()) {
+                            logger.trace("Main table delete es index, destination:{}, table: {}, index: {}, pk: {}",
+                                    config.getDestination(),
+                                    dml.getTable(),
+                                    mapping.get_index(),
+                                    pkVal);
+                        }
+                        esFieldData.remove(pkFieldItem.getFieldName());
+                        esFieldData.keySet().forEach(key -> esFieldData.put(key, null));
+                        esTemplate.delete(mapping, pkVal, esFieldData);*/
+
                     }
                 } else {
                     // ------关联子表复杂字段更新 执行全sql更新es------
@@ -419,7 +432,21 @@ public class ESSyncService {
             }
         }
     }
-
+    public static void appendConditionDelete(StringBuilder sql, Object value, String owner, String columnName, String columnAnotherName) {
+        if (value instanceof String) {
+            if (!Strings.isNullOrEmpty(columnAnotherName)) {
+                sql.append(owner).append(".").append(columnName).append("='").append(value).append("' OR ").append(columnAnotherName).append("='").append(value).append("'  AND ");
+            } else {
+                sql.append(owner).append(".").append(columnName).append("='").append(value).append("'  AND ");
+            }
+        } else {
+            if (!Strings.isNullOrEmpty(columnAnotherName)) {
+                sql.append(owner).append(".").append(columnName).append("=").append(value).append(" OR ").append(columnAnotherName).append("=").append(value).append("  AND ");
+            } else {
+                sql.append(owner).append(".").append(columnName).append("=").append(value).append("  AND ");
+            }
+        }
+    }
     /**
      * 单表简单字段insert
      *
