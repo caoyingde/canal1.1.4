@@ -194,20 +194,23 @@ public class ESTemplate {
     public void commit() {
         if (getBulk().numberOfActions() > 0) {
             BulkResponse response = getBulk().bulk();
-            if (response.hasFailures()) {
-                for (BulkItemResponse itemResponse : response.getItems()) {
-                    if (!itemResponse.isFailed()) {
-                        continue;
-                    }
+            try {
+                if (response.hasFailures()) {
+                    for (BulkItemResponse itemResponse : response.getItems()) {
+                        if (!itemResponse.isFailed()) {
+                            continue;
+                        }
 
-                    if (itemResponse.getFailure().getStatus() == RestStatus.NOT_FOUND) {
-                        logger.error(itemResponse.getFailureMessage());
-                    } else {
-                        throw new RuntimeException("ES sync commit error" + itemResponse.getFailureMessage());
+                        if (itemResponse.getFailure().getStatus() == RestStatus.NOT_FOUND) {
+                            logger.error(itemResponse.getFailureMessage());
+                        } else {
+                            throw new RuntimeException("ES sync commit error" + itemResponse.getFailureMessage());
+                        }
                     }
                 }
+            } finally {
+                resetBulkRequestBuilder();
             }
-            finally resetBulkRequestBuilder();
         }
     }
 
