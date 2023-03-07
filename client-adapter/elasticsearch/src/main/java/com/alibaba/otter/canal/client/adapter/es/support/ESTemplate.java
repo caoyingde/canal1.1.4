@@ -207,7 +207,7 @@ public class ESTemplate {
                     }
                 }
             }
-            resetBulkRequestBuilder();
+            finally resetBulkRequestBuilder();
         }
     }
 
